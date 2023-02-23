@@ -1,35 +1,33 @@
 pipeline {
-    agent any 
+    agent any
+
+
     stages {
-        stage('build') {
+        stage('ci') {
             steps {
-                    withCredentials([usernamePassword(credentialsId: 'dockercredentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh """
-                            docker login -u $USERNAME -p $PASSWORD
-                            docker build -t haidy/project-app:${BUILD_NUMBER} .
-                            docker push haidy/project-app:${BUILD_NUMBER}
-                            echo ${BUILD_NUMBER} > ../bakehouse-build-number.txt
-                        """
-                    }
-                    
-                
+             withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+
+                // Get some code from a GitHub repository
+                git 'https://github.com/HaidyH/ITI-final--project-app'}
+
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+                sh "docker build . -t ${USERNAME}/haidy-web-app-v1 -f Dockerfile"
+                sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                sh "docker push ${USERNAME}/haidy-web-app-v1"}
+
             }
+
+
         }
-        stage('deploy') {
-            steps {
-            
-                    withCredentials([file(credentialsId: 'kubernetes_kubeconfig', variable: 'config')]) {
-                    sh """
-                        export BUILD_NUMBER=\$(cat ../bakehouse-build-number.txt)
-                        mv Deployment/deploy.yaml Deployment/deploy.yaml.tmp
-                        cat Deployment/deploy.yaml.tmp | envsubst > Deployment/deploy.yaml
-                        rm -f Deployment/deploy.yaml.tmp
-                        kubectl apply -f Deployment --kubeconfig=${config}
-                    """
-                }
-            
-                
+        stage('cd'){
+            steps{
+                  sh """
+                  kubectl apply -f deploy.yaml 
+                  kubectl apply -f service.yaml 
+                  """
+
             }
+
         }
     }
 }
