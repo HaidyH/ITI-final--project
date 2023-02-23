@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: myservice
+  name: myservice
+  namespace: app
+spec:
+  ports:
+  - name: haidyport
+    port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30010
+  selector:
+    app: haidy
+  type: LoadBalancer
+status:
+  loadBalancer: {}
