@@ -31,3 +31,29 @@ pipeline {
         }
     }
 }
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: haidyapp
+  namespace: app
+  name: haidyapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haidyapp
+  template:
+    metadata:
+      labels:
+        app: haidyapp
+    spec:
+      containers:
+      - image: haidyh/reactapp:latest
+        name: haidyapp
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
