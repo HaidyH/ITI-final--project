@@ -1,24 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: haidy-deployment
   labels:
-    app: haidyapp
+    app: haidy
   namespace: app
-  name: haidyapp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: haidyapp
+      app: haidy
   template:
     metadata:
       labels:
-        app: haidyapp
+        app: haidy
     spec:
       containers:
-       image: haidyh/haidy-web-app-v1
-        name: haidyapp
-        imagePullPolicy: Always
+      - name: haidy
+        image: haidyh/haidy-web-app-v1:latest
         ports:
         - containerPort: 80
-        resources: {}
